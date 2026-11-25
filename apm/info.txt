@@ -1,0 +1,31 @@
+
+Without any --target, APM installs nothing. If it can't tell which AI tool you use, it stops and asks for --target, even when a folder like .github already exists. That's likely what happened in your first R06 attempt. So users always pick their tool:
+
+AI tool	Install command	Where it lands	Result here
+Kiro	--target kiro	.kiro\skills, agents, prompts, hooks	All 6 skills, agent, 2 prompts, hook
+GitHub Copilot (VS Code)	--target copilot	.agents\skills, .github\agents, .github\prompts, .github\hooks	All deployed
+Claude Code	--target claude	.claude\skills, agents, commands, hook in settings.json	All deployed
+Cursor	--target cursor	.agents\skills, .cursor\agents, .cursor\commands	All deployed
+Any Agent Skills tool	--target agent-skills	.agents\skills (skills only)	6 skills
+
+Several at once also works: --target kiro,copilot,claude. I also ran the setup check (doctor.py) from the Copilot layout and it reported Ready, so the scripts find each other in that layout too.
+
+Test it yourself without Kiro (about 2 minutes, no credits). In a new empty folder:
+
+mkdir C:\work\test-copilot; cd C:\work\test-copilot
+apm install https://<gitlab-host>/<group>/<repo>.git#v0.9.1 --target copilot
+dir .agents\skills
+dir .github\prompts
+python .agents\skills\run-incident-analysis\scripts\doctor.py
+
+Expected: 6 skill folders, 2 prompt files, and "Ready.".
+
+You can also run the data-preparation part (formats, redaction, clustering) with plain Python, no AI tool needed:
+
+python .agents\skills\run-incident-analysis\scripts\prepare_incident.py --logs C:\work\incidentlens-eval\case-02\logs --deploys C:\work\incidentlens-eval\case-02\deploys.json --output-dir test-report
+
+It prints the briefing that the AI would reason from.
+
+If you have VS Code with Copilot, open that folder and type /investigate-incident logs=... in Copilot Chat to see the whole thing work outside Kiro. That run is optional.
+
+README: the attached README.md replaces the install section with this per-tool table. Copy it over the README in your repo. It's careful with the claims: full runs were evaluated in Kiro, and installs were checked for the Copilot, Claude Code and Cursor layouts, which is exactly what we've verified. Only list another tool as "tested" in the results if you actually run it there.
